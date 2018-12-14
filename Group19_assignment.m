@@ -6,7 +6,7 @@
 clear;
 %% Parameters
 
-dimension = 2; 
+dimension = 3; 
 tol = 1e-4;
 maxnorm = size(1,9); 
 for p = 2
