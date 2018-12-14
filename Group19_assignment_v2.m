@@ -3,13 +3,13 @@
 % By: Nerine Usman & Marianne Schaaphok
 % Date: 25-11-2018
 
-clear;
+function [u,u_ex,err] = SolveProblem(p,dimension, iter)
 %% Parameters
 
-dimension = 3; 
+%dimension = 3; 
 tol = 1e-4;
 maxnorm = size(1,9);
-p = 2; 
+%p = 2; 
 n = 2^p; 
 h = 1/n;
 
@@ -111,18 +111,19 @@ end
     r = f;
     u = zeros(size(f)); 
     i = 0;
-    while norm(r)>tol
+    %while norm(r)>tol
+    while i<iter
         y = R\r; 
         du = R'\y; 
         u = u+du; 
         r = f-A*u; 
         i = i+1; 
         if i>1000
-           fprintf('Could not converge within 50 iteration\n') 
+           fprintf('Could not converge within 1000 iteration\n') 
            break
         end
     end
-err = norm(u-u_ex)
+err = norm(u-u_ex, 'inf');
 
 if dimension==2
     u_pl = reshape(u,[(n+1),(n+1)]);
@@ -146,4 +147,5 @@ end
 
 function [ex] = exact(x,y,z)
     ex = sin(x.*y.*z); 
+end
 end
