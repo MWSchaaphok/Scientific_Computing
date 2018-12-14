@@ -3,7 +3,7 @@
 % By: Nerine Usman & Marianne Schaaphok
 % Date: 25-11-2018
 
-function [u,u_ex,err,t] = SolveProblem(p,dimension,iter)
+function [u,u_ex,err,tF,tS, fill_ratio] = SolveProblem(p,dimension,iter)
 %% Parameters
 
 %dimension = 3; 
@@ -107,8 +107,9 @@ end
     %% Solve the system
     tic; 
     R = chol(A); 
-    t = toc; 
-    % Firect solving algorithm for norm(r)<tolerance 
+    tF = toc; 
+    % Direct solving algorithm for norm(r)<tolerance 
+    tic; 
     r = f;
     u = zeros(size(f)); 
     i = 0;
@@ -124,6 +125,8 @@ end
            break
         end
     end
+tS = toc; 
+fill_ratio = nnz(R)/nnz(A);
 err = norm(u-u_ex, 'inf');
 
 if dimension==2
