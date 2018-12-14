@@ -1,0 +1,23 @@
+%% Check order of convergence for 
+err2D = ones(8,1);
+
+for p2 = [2,3,4]
+    [u, u_ex, err2D(p2-1)] = SolveProblem(p2,2,3);
+end 
+
+err3D = ones(8,1); 
+for p2 = [2,3,4]
+    [u, u_ex, err3D(p2)] = SolveProblem(p2,2,3);
+end 
+
+figure; 
+plot(p2,err2D);
+title('Maxnorm |u^h - u^h_{ex}| for 2D')
+xlabel('p')
+ylabel('maxnorm')
+
+figure; 
+plot(p2,err3D);
+title('Maxnorm |u^h - u^h_{ex}| for 3D')
+xlabel('p')
+ylabel('maxnorm')
