@@ -3,7 +3,7 @@
 % By: Nerine Usman & Marianne Schaaphok
 % Date: 25-11-2018
 
-function [u,u_ex,err] = SolveProblem(p,dimension, iter)
+function [u,u_ex,err] = SolveProblem(p,dimension,iter)
 %% Parameters
 
 %dimension = 3; 
@@ -46,7 +46,7 @@ A_1 = 1/h^2 * A_1;
 A_2 = 1/h^2 * A_2; 
 A_3 = 1/h^2 * A_3; 
 
-%imagesc(A_2)
+imagesc(A_2)
 
 %% Construct vector f 2D
 if (dimension == 2)
@@ -133,7 +133,6 @@ if dimension==2
     surf(X,Y,u_pl)
     hold on;
     surf(X,Y,u_ex1)
-    hold off; 
 end 
 
 
