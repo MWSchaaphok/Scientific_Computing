@@ -16,14 +16,15 @@ h = 1/n;
 %% Construct matrices A
  
 % Help matrices for construction of A 
-H_1 = diag([h^2; zeros(n-1,1); h^2]);
-D_1 = diag([0; ones(n-1,1);0]);
+H_1 = spdiags([h^2; zeros(n-1,1); h^2],0,n+1,n+1);
+D_1 = spdiags([0; ones(n-1,1);0], 0, n+1,n+1);
 D_2 = kron(D_1,D_1);
-D_3 = kron(D_1,D_2); 
-T_1 = diag(-1*[0;ones(n-2,1); 0],-1) + diag(-1*[0;ones(n-2,1);0],1); 
-I_1 = eye(n+1);
-I_2 = eye((n+1)^2);
-I_3 = eye((n+1)^3);
+D_3 = kron(D_1,D_2);
+T_1 = spdiags(-1*[0;ones(n-2,1); 0; 0],-1,n+1,n+1) ...
+    + spdiags(-1*[0;0;ones(n-2,1);0],1,n+1,n+1);
+I_1 = spdiags(ones((n+1),1),0,(n+1),(n+1));
+I_2 = spdiags(ones((n+1)^2,1),0,(n+1)^2,(n+1)^2);
+
 
 % Boundary neighbours of interior points
 B_1 = zeros(n+1); 
@@ -76,6 +77,8 @@ if (dimension == 2)
     u_ex = U2;
 %% Construct vector f 3D
 elseif (dimension == 3)
+    I_3 = spdiags(ones((n+1)^3,1),0,(n+1)^3,(n+1)^3);
+    
     % Construct mesh
     x = 0:h:1; 
     y = 0:h:1; 
@@ -106,7 +109,7 @@ else
 end 
     %% Solve the system
     tic; 
-    R = chol(A); 
+    R = chol(A,'lower'); 
     tF = toc; 
     % Direct solving algorithm for norm(r)<tolerance 
     tic; 
@@ -125,7 +128,9 @@ end
            break
         end
     end
+
 tS = toc; 
+
 fill_ratio = nnz(R)/nnz(A);
 err = norm(u-u_ex, 'inf');
 
@@ -137,6 +142,7 @@ if dimension==2
     surf(X,Y,u_pl)
     hold on;
     surf(X,Y,u_ex1)
+    hold off; 
 end 
 
 
