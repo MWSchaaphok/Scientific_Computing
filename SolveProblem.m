@@ -3,7 +3,7 @@
 % By: Nerine Usman & Marianne Schaaphok
 % Date: 25-11-2018
 
-function [u,u_ex,err,tF,tS, fill_ratio] = SolveProblem(p,dimension,iter)
+function [u,u_ex,err,tF,tS, fill_ratio] = SolveProblem(p,dimension,iter, solver,redsc)
 %% Parameters
 
 %dimension = 3; 
@@ -47,7 +47,7 @@ A_1 = 1/h^2 * A_1;
 A_2 = 1/h^2 * A_2; 
 A_3 = 1/h^2 * A_3; 
 
-imagesc(A_2)
+%imagesc(A_2)
 
 %% Construct vector f 2D
 if (dimension == 2)
@@ -106,8 +106,29 @@ elseif (dimension == 3)
     u_ex = U3;
 else 
     fprintf('Please choose dimension 2 or 3')
+end
+
+%% Solve the system
+% Use of bandwith reduction scheme
+if redsc == 1 
+     s = symamd(A);
+     figure;
+     spy(A); 
+     title('A before matrix reordering')
+     A = A(s,s); 
+     figure
+     spy(A)
+     title('A after matrix reordering')
 end 
-    %% Solve the system
+ 
+ % Define variables 
+ R = zeros(size(A));
+ u = zeros(size(u_ex)); 
+ tF = 0; 
+ tS = 0; 
+ 
+ % Use given solver 
+ if strcmp(solver,'Cholesky')
     tic; 
     R = chol(A,'lower'); 
     tF = toc; 
@@ -129,21 +150,29 @@ end
         end
     end
 
-tS = toc; 
+    tS = toc; 
 
-fill_ratio = nnz(R)/nnz(A);
-err = norm(u-u_ex, 'inf');
+elseif strcmp(solver,'SSOR')
+     fprintf('Not yet implemented')
+ end 
 
-if dimension==2
-    u_pl = reshape(u,[(n+1),(n+1)]);
-    u_ex1 = reshape(U2,[n+1,n+1]);
+ figure 
+ spy(R)
+ title('Cholesky matrix after reordering')
+ hold off; 
+ fill_ratio = nnz(R)/nnz(A);
+ err = norm(u-u_ex, 'inf');
 
-    figure; 
-    surf(X,Y,u_pl)
-    hold on;
-    surf(X,Y,u_ex1)
-    hold off; 
-end 
+% if dimension==2
+%     u_pl = reshape(u,[(n+1),(n+1)]);
+%     u_ex1 = reshape(U2,[n+1,n+1]);
+% 
+%     figure; 
+%     surf(X,Y,u_pl)
+%     hold on;
+%     surf(X,Y,u_ex1)
+%     hold off; 
+% end 
 
 
 %% Functions
