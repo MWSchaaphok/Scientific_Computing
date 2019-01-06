@@ -3,11 +3,12 @@
 % By: Nerine Usman & Marianne Schaaphok
 % Date: 25-11-2018
 
-function [u,u_ex,err,tF,tS, fill_ratio] = SolveProblem(p,dimension,iter, solver,redsc)
+function [u,u_ex,err,tF,tS, fill_ratio, resid,rrf] = SolveProblem(p,dimension,iter, solver,redsc)
 %% Parameters
 
 %dimension = 3; 
 tol = 1e-4;
+m_max = 10;                % maximum number of iterations for SSOR
 maxnorm = size(1,9);
 %p = 2; 
 n = 2^p; 
@@ -124,8 +125,12 @@ end
  % Define variables 
  R = zeros(size(A));
  u = zeros(size(u_ex)); 
+ resid = zeros(m_max,1); 
+ normR = zeros(m_max,1);
+ rrf = zeros(5,1); 
  tF = 0; 
  tS = 0; 
+ r = 1;
  
  % Use given solver 
  if strcmp(solver,'Cholesky')
@@ -153,13 +158,39 @@ end
     tS = toc; 
 
 elseif strcmp(solver,'SSOR')
-     fprintf('Not yet implemented')
+     omega = 1.5; 
+     m=1;
+     nf = norm(f);
+     tic;
+     while m<m_max % && norm(r)/nf>10^-10
+         for i = 1:length(u)
+            sigma = u(i); 
+            %u(i) = (f(i) - A(i,1:i-1)*u(1:i-1) - A(i,i+1)*u(i+1,n))/A(i,i);
+            u(i) = 0; 
+            u(i) = (f(i)-A(i,:)*u)/A(i,i);
+            u(i) = (1-omega)*sigma + omega*u(i);
+         end
+
+         for i = length(u):-1:1
+            sigma = u(i); 
+            u(i) = 0; 
+            u(i) = (f(i)-A(i,:)*u)/A(i,i);
+            u(i) = (1-omega)*sigma + omega*u(i);
+         end
+         %r = f-A*u;
+         %resid(m) = norm(r)/nf;
+         %normR(m) = norm(r); 
+         m=m+1; 
+     end 
+     tS = toc; 
+     %rrf = normR(m-5:m-1)./norm(m-6:m-2);
+     
  end 
 
- figure 
- spy(R)
- title('Cholesky matrix after reordering')
- hold off; 
+%  figure 
+%  spy(R)
+%  title('Cholesky matrix after reordering')
+%  hold off; 
  fill_ratio = nnz(R)/nnz(A);
  err = norm(u-u_ex, 'inf');
 
