@@ -1,0 +1,530 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>order_convergence</title><meta name="generator" content="MATLAB 9.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-01-12"><meta name="DC.source" content="order_convergence.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Check order of convergence for</a></li><li><a href="#5">Factorization and solving time as function of problem size</a></li><li><a href="#6">Fill ratio analysis</a></li><li><a href="#9">Plot relative residuals SSOR</a></li></ul></div><h2 id="1">Check order of convergence for</h2><pre class="codeinput">clear;
+close <span class="string">all</span>;
+</pre><pre class="codeinput"><span class="comment">%SolveProblem(p,dimension,iter,solver,reduction scheme,m_max)</span>
+solver = <span class="string">'Cholesky'</span>;                      <span class="comment">% Options: 'Cholesky','SSOR','PCG'</span>
+m_max = 100;
+p2 = 2:1:7;                         <span class="comment">%</span>
+n2 = 2.^p2;                         <span class="comment">%</span>
+N2 = (n2+ones(size(n2))).^2;        <span class="comment">%</span>
+h2 = 1./n2;                         <span class="comment">%</span>
+err2D = ones(size(p2));             <span class="comment">% Maxnorm error</span>
+tF2 = ones(size(p2));               <span class="comment">% Factorization time</span>
+tS2 = ones(size(p2));               <span class="comment">% Solving time</span>
+fill_ratio2 = ones(size(p2));       <span class="comment">% fill in ratio</span>
+resid2 = ones(size(p2,1),m_max);      <span class="comment">% residual SSOR</span>
+rrf2 = ones(size(p2,1),5);          <span class="comment">% residual reduction factor</span>
+
+<span class="keyword">for</span> p = p2
+    p
+    [u2, u_ex2, err2D(p-1),tF2(p-1),tS2(p-1), fill_ratio2(p-1),resid2(p-1,:),rrf2(p-1,:),M2(p-1)] = SolveProblem(p,2,3,solver,0,m_max);
+<span class="keyword">end</span>
+
+
+p3 = 2:1:5;                         <span class="comment">%</span>
+n3 = 2.^p3;                         <span class="comment">%</span>
+N3 = (n3 + ones(size(n3))).^3;
+h3 = 1./n3;
+err3D = ones(size(p3));             <span class="comment">% Maxnorm error</span>
+tF3 = ones(size(p3));               <span class="comment">% Factorization time</span>
+tS3 = ones(size(p3));               <span class="comment">% Solving time</span>
+fill_ratio3 = ones(size(p3));       <span class="comment">% fill in ratio</span>
+resid3 = ones(size(p3,1),m_max);        <span class="comment">% residual SSOR</span>
+rrf3 = ones(size(p3,1),5);          <span class="comment">% residual reduction factor</span>
+
+<span class="keyword">for</span> p= p3
+    p
+    [u3, u_ex3, err3D(p-1),tF3(p-1),tS3(p-1),fill_ratio3(p-1), resid3(p-1,:),rrf3(p-1,:),M3(p-1)] = SolveProblem(p,3,3,solver,0,m_max);
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">
+p =
+
+     2
+
+
+p =
+
+     3
+
+
+p =
+
+     4
+
+
+p =
+
+     5
+
+
+p =
+
+     6
+
+
+p =
+
+     7
+
+
+p =
+
+     2
+
+
+p =
+
+     3
+
+
+p =
+
+     4
+
+
+p =
+
+     5
+
+</pre><pre class="codeinput"><span class="keyword">if</span> strcmp(solver,<span class="string">'Cholesky'</span>)
+</pre><pre class="codeinput">    figure;
+    plot(h2,err2D);
+    title(<span class="string">'Maxnorm |u^h - u^h_{ex}| for 2D'</span>)
+    xlabel(<span class="string">'h'</span>)
+    ylabel(<span class="string">'maxnorm'</span>)
+    set(gca, <span class="string">'XScale'</span>,<span class="string">'log'</span>)
+    set(gca, <span class="string">'YScale'</span>, <span class="string">'log'</span>)
+    hold <span class="string">on</span>;
+    plot(h2, h2.^2);
+    legend(<span class="string">'|e|_2'</span>,<span class="string">'h^2'</span>)
+    hold <span class="string">off</span>;
+
+    figure;
+    set(gca, <span class="string">'YScale'</span>, <span class="string">'log'</span>)
+    plot(h3,err3D);
+    title(<span class="string">'Maxnorm |u^h - u^h_{ex}| for 3D'</span>)
+    xlabel(<span class="string">'h'</span>)
+    ylabel(<span class="string">'maxnorm'</span>)
+    set(gca, <span class="string">'XScale'</span>,<span class="string">'log'</span>)
+    set(gca, <span class="string">'YScale'</span>, <span class="string">'log'</span>)
+    hold <span class="string">on</span>;
+    plot(h3, h3.^2);
+    legend(<span class="string">'|e|_2'</span>,<span class="string">'h^2'</span>)
+    hold <span class="string">off</span>;
+</pre><img vspace="5" hspace="5" src="order_convergence_01.png" alt=""> <img vspace="5" hspace="5" src="order_convergence_02.png" alt=""> <h2 id="5">Factorization and solving time as function of problem size</h2><pre class="codeinput">    figure;
+    plot(N2,tF2)
+    title(<span class="string">'Factorization Time Cholesky Decomposition 2D'</span>)
+    xlabel(<span class="string">'N'</span>)
+    ylabel(<span class="string">'Time (s)'</span>)
+    set(gca, <span class="string">'XScale'</span>,<span class="string">'log'</span>)
+    set(gca, <span class="string">'YScale'</span>, <span class="string">'log'</span>)
+    hold <span class="string">on</span>;
+    plot(N2, 10^-5*N2.^2);
+    legend(<span class="string">'t'</span>,<span class="string">'N^2'</span>)
+    hold <span class="string">off</span>;
+
+    figure;
+    plot(N3,tF3)
+    title(<span class="string">'Factorization Time Cholesky Decomposition 3D'</span>)
+    xlabel(<span class="string">'N'</span>)
+    ylabel(<span class="string">'Time (s)'</span>)
+    set(gca, <span class="string">'XScale'</span>,<span class="string">'log'</span>)
+    set(gca, <span class="string">'YScale'</span>, <span class="string">'log'</span>)
+
+    figure;
+    plot(N2,tS2)
+    title(<span class="string">'Forward/Backward Solving Time 2D'</span>)
+    xlabel(<span class="string">'N'</span>)
+    ylabel(<span class="string">'Time (s)'</span>)
+    set(gca, <span class="string">'XScale'</span>,<span class="string">'log'</span>)
+    set(gca, <span class="string">'YScale'</span>, <span class="string">'log'</span>)
+    hold <span class="string">on</span>;
+    plot(N2, 10^-5*N2.^(3/2));
+    legend(<span class="string">'t'</span>,<span class="string">'N^(3/2)'</span>)
+    hold <span class="string">off</span>;
+
+    figure;
+    plot(N3,tS3)
+    title(<span class="string">'Forward/Backward Solving Time 3D'</span>)
+    xlabel(<span class="string">'N'</span>)
+    ylabel(<span class="string">'Time (s)'</span>)
+    set(gca, <span class="string">'XScale'</span>,<span class="string">'log'</span>)
+    set(gca, <span class="string">'YScale'</span>, <span class="string">'log'</span>)
+    hold <span class="string">on</span>;
+    plot(N3, 10^-5*N3.^(5/3));
+    legend(<span class="string">'t'</span>,<span class="string">'N^(5/3))'</span>)
+    hold <span class="string">off</span>;
+</pre><img vspace="5" hspace="5" src="order_convergence_03.png" alt=""> <img vspace="5" hspace="5" src="order_convergence_04.png" alt=""> <img vspace="5" hspace="5" src="order_convergence_05.png" alt=""> <img vspace="5" hspace="5" src="order_convergence_06.png" alt=""> <h2 id="6">Fill ratio analysis</h2><pre class="codeinput">    figure;
+    plot(N2,fill_ratio2)
+    title(<span class="string">'Fill ratio 2D'</span>)
+    xlabel(<span class="string">'N'</span>)
+    ylabel(<span class="string">'nnz(C)/nnz(A)'</span>)
+    set(gca, <span class="string">'XScale'</span>,<span class="string">'log'</span>)
+    set(gca, <span class="string">'YScale'</span>,<span class="string">'log'</span>)
+    hold <span class="string">on</span>
+    plot(N2,N2);
+    legend(<span class="string">'fill ratio'</span>,<span class="string">'N'</span>)
+    hold <span class="string">off</span>
+
+    figure;
+    plot(N3,fill_ratio3)
+    title(<span class="string">'Fill ratio 3D'</span>)
+    xlabel(<span class="string">'N'</span>)
+    ylabel(<span class="string">'nnz(C)/nnz(A)'</span>)
+    set(gca, <span class="string">'XScale'</span>,<span class="string">'log'</span>)
+    set(gca, <span class="string">'YScale'</span>,<span class="string">'log'</span>)
+    hold <span class="string">on</span>
+    plot(N3,N3.^2);
+    legend(<span class="string">'fill ratio'</span>,<span class="string">'N^2'</span>)
+    hold <span class="string">off</span>
+</pre><img vspace="5" hspace="5" src="order_convergence_07.png" alt=""> <img vspace="5" hspace="5" src="order_convergence_08.png" alt=""> <pre class="codeinput"><span class="keyword">end</span>
+</pre><pre class="codeinput">figure;
+title([<span class="string">'Solving time '</span>,solver,<span class="string">' 2D'</span>])
+xlabel(<span class="string">'N'</span>)
+ylabel(<span class="string">'time (s)'</span>)
+set(gca, <span class="string">'XScale'</span>,<span class="string">'log'</span>)
+set(gca, <span class="string">'YScale'</span>, <span class="string">'log'</span>)
+hold <span class="string">on</span>;
+<span class="comment">%plot(N2, 10^-5*N2.^2);</span>
+<span class="keyword">if</span> strcmp(solver,<span class="string">'Cholesky'</span>)
+    plot(N2,10^-5*N2.^(3/2));
+    legend(<span class="string">'t'</span>,<span class="string">'N^{3/2}'</span>)
+<span class="keyword">elseif</span> strcmp(solver, <span class="string">'SSOR'</span>)
+    plot(N2,10^-5*N2.*M2)
+    legend(<span class="string">'t'</span>,<span class="string">'N*N_{iter}'</span>)
+<span class="keyword">elseif</span> strcmp(solver,<span class="string">'PCG'</span>)
+    plot(N2,10^-5*N2.^(3/2).*M2);
+    legend(<span class="string">'t'</span>,<span class="string">'N^{3/2}*N_{iter}'</span>)
+<span class="keyword">end</span>
+hold <span class="string">off</span>;
+
+figure;
+plot(N3,tS3);
+title([<span class="string">'Solving time '</span>,solver,<span class="string">' 3D'</span>])
+xlabel(<span class="string">'N'</span>)
+ylabel(<span class="string">'time (s)'</span>)
+set(gca, <span class="string">'XScale'</span>,<span class="string">'log'</span>)
+set(gca, <span class="string">'YScale'</span>, <span class="string">'log'</span>)
+hold <span class="string">on</span>;
+<span class="comment">%plot(N3, 10^-5*N3.^2);</span>
+<span class="comment">%plot(N3,10^-5*N3.^(5/3));</span>
+<span class="keyword">if</span> strcmp(solver,<span class="string">'Cholesky'</span>)
+    plot(N3,10^-5*N3.^(5/3));
+    legend(<span class="string">'t'</span>,<span class="string">'N^{5/3}'</span>)
+<span class="keyword">elseif</span> strcmp(solver, <span class="string">'SSOR'</span>)
+    plot(N3,10^-5*N3.*M3);
+    legend(<span class="string">'t'</span>,<span class="string">'N*N_{iter}'</span>)
+<span class="keyword">elseif</span> strcmp(solver,<span class="string">'PCG'</span>)
+    plot(N3,10^-5*N3.^(5/3).*M3);
+    legend(<span class="string">'t'</span>,<span class="string">'N^{5/3}*N_{iter}'</span>)
+<span class="keyword">end</span>
+
+hold <span class="string">off</span>;
+</pre><pre class="codeoutput">Warning: Ignoring extra legend
+entries. 
+</pre><img vspace="5" hspace="5" src="order_convergence_09.png" alt=""> <img vspace="5" hspace="5" src="order_convergence_10.png" alt=""> <h2 id="9">Plot relative residuals SSOR</h2><pre class="codeinput"><span class="keyword">if</span> strcmp(solver,<span class="string">'SSOR'</span>) || strcmp(solver,<span class="string">'PCG'</span>)
+</pre><pre class="codeinput">    figure;
+    plot(resid2');
+    set(gca, <span class="string">'YScale'</span>, <span class="string">'log'</span>)
+    title([<span class="string">'Relative residual ||r||_2/||f||_2'</span>, solver,<span class="string">' 2D'</span>])
+    <span class="keyword">for</span> i=1:length(n2)
+        legendn{i} = sprintf(<span class="string">'n=%s'</span>,num2str(n2(i)));
+    <span class="keyword">end</span>
+    legend(legendn,<span class="string">'Location'</span>,<span class="string">'best'</span>)
+    xlabel(<span class="string">'m'</span>)
+    ylabel(<span class="string">'||r||_2/||f||_2'</span>)
+</pre><pre class="codeinput">    figure;
+    plot(resid3');
+    set(gca, <span class="string">'YScale'</span>, <span class="string">'log'</span>)
+    title([<span class="string">'Relative residual ||r||_2/||f||_2 '</span> ,solver,<span class="string">' 3D'</span>])
+    <span class="keyword">for</span> i=1:length(n3)
+        legendn{i} = sprintf(<span class="string">'n=%s'</span>,num2str(n3(i)));
+    <span class="keyword">end</span>
+    legend(legendn,<span class="string">'Location'</span>,<span class="string">'best'</span>)
+    xlabel(<span class="string">'m'</span>)
+    ylabel(<span class="string">'||r||_2/||f||_2'</span>)
+</pre><pre class="codeinput"><span class="keyword">end</span>
+
+<span class="comment">%latex_table = latex(vpa(sym(rrf2),3))</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Check order of convergence for
+clear;
+close all;
+%%
+%SolveProblem(p,dimension,iter,solver,reduction scheme,m_max)
+solver = 'Cholesky';                      % Options: 'Cholesky','SSOR','PCG'
+m_max = 100;
+p2 = 2:1:7;                         %
+n2 = 2.^p2;                         %
+N2 = (n2+ones(size(n2))).^2;        %
+h2 = 1./n2;                         %
+err2D = ones(size(p2));             % Maxnorm error
+tF2 = ones(size(p2));               % Factorization time
+tS2 = ones(size(p2));               % Solving time
+fill_ratio2 = ones(size(p2));       % fill in ratio
+resid2 = ones(size(p2,1),m_max);      % residual SSOR
+rrf2 = ones(size(p2,1),5);          % residual reduction factor
+
+for p = p2
+    p
+    [u2, u_ex2, err2D(p-1),tF2(p-1),tS2(p-1), fill_ratio2(p-1),resid2(p-1,:),rrf2(p-1,:),M2(p-1)] = SolveProblem(p,2,3,solver,0,m_max);
+end
+
+
+p3 = 2:1:5;                         %
+n3 = 2.^p3;                         %
+N3 = (n3 + ones(size(n3))).^3;
+h3 = 1./n3;
+err3D = ones(size(p3));             % Maxnorm error
+tF3 = ones(size(p3));               % Factorization time
+tS3 = ones(size(p3));               % Solving time
+fill_ratio3 = ones(size(p3));       % fill in ratio
+resid3 = ones(size(p3,1),m_max);        % residual SSOR
+rrf3 = ones(size(p3,1),5);          % residual reduction factor
+
+for p= p3
+    p
+    [u3, u_ex3, err3D(p-1),tF3(p-1),tS3(p-1),fill_ratio3(p-1), resid3(p-1,:),rrf3(p-1,:),M3(p-1)] = SolveProblem(p,3,3,solver,0,m_max);
+end 
+
+
+%%
+if strcmp(solver,'Cholesky')
+    figure;
+    plot(h2,err2D);
+    title('Maxnorm |u^h - u^h_{ex}| for 2D')
+    xlabel('h')
+    ylabel('maxnorm')
+    set(gca, 'XScale','log')
+    set(gca, 'YScale', 'log')
+    hold on;
+    plot(h2, h2.^2);
+    legend('|e|_2','h^2')
+    hold off;
+
+    figure;
+    set(gca, 'YScale', 'log')
+    plot(h3,err3D);
+    title('Maxnorm |u^h - u^h_{ex}| for 3D')
+    xlabel('h')
+    ylabel('maxnorm')
+    set(gca, 'XScale','log')
+    set(gca, 'YScale', 'log')
+    hold on;
+    plot(h3, h3.^2);
+    legend('|e|_2','h^2')
+    hold off;
+
+    %% Factorization and solving time as function of problem size
+    figure;
+    plot(N2,tF2)
+    title('Factorization Time Cholesky Decomposition 2D')
+    xlabel('N')
+    ylabel('Time (s)')
+    set(gca, 'XScale','log')
+    set(gca, 'YScale', 'log')
+    hold on;
+    plot(N2, 10^-5*N2.^2);
+    legend('t','N^2')
+    hold off;
+
+    figure;
+    plot(N3,tF3)
+    title('Factorization Time Cholesky Decomposition 3D')
+    xlabel('N')
+    ylabel('Time (s)')
+    set(gca, 'XScale','log')
+    set(gca, 'YScale', 'log')
+
+    figure;
+    plot(N2,tS2)
+    title('Forward/Backward Solving Time 2D')
+    xlabel('N')
+    ylabel('Time (s)')
+    set(gca, 'XScale','log')
+    set(gca, 'YScale', 'log')
+    hold on;
+    plot(N2, 10^-5*N2.^(3/2));
+    legend('t','N^(3/2)')
+    hold off;
+
+    figure;
+    plot(N3,tS3)
+    title('Forward/Backward Solving Time 3D')
+    xlabel('N')
+    ylabel('Time (s)')
+    set(gca, 'XScale','log')
+    set(gca, 'YScale', 'log')
+    hold on;
+    plot(N3, 10^-5*N3.^(5/3));
+    legend('t','N^(5/3))')
+    hold off;
+    %% Fill ratio analysis
+    figure;
+    plot(N2,fill_ratio2)
+    title('Fill ratio 2D')
+    xlabel('N')
+    ylabel('nnz(C)/nnz(A)')
+    set(gca, 'XScale','log')
+    set(gca, 'YScale','log')
+    hold on
+    plot(N2,N2);
+    legend('fill ratio','N')
+    hold off
+
+    figure;
+    plot(N3,fill_ratio3)
+    title('Fill ratio 3D')
+    xlabel('N')
+    ylabel('nnz(C)/nnz(A)')
+    set(gca, 'XScale','log')
+    set(gca, 'YScale','log')
+    hold on
+    plot(N3,N3.^2);
+    legend('fill ratio','N^2')
+    hold off
+
+
+end
+%%
+figure; 
+title(['Solving time ',solver,' 2D'])
+xlabel('N')
+ylabel('time (s)')
+set(gca, 'XScale','log')
+set(gca, 'YScale', 'log')
+hold on;
+%plot(N2, 10^-5*N2.^2);
+if strcmp(solver,'Cholesky')
+    plot(N2,10^-5*N2.^(3/2));
+    legend('t','N^{3/2}')
+elseif strcmp(solver, 'SSOR')
+    plot(N2,10^-5*N2.*M2)
+    legend('t','N*N_{iter}')
+elseif strcmp(solver,'PCG')
+    plot(N2,10^-5*N2.^(3/2).*M2);
+    legend('t','N^{3/2}*N_{iter}')
+end
+hold off;
+
+figure;
+plot(N3,tS3);
+title(['Solving time ',solver,' 3D'])
+xlabel('N')
+ylabel('time (s)')
+set(gca, 'XScale','log')
+set(gca, 'YScale', 'log')
+hold on;
+%plot(N3, 10^-5*N3.^2);
+%plot(N3,10^-5*N3.^(5/3));
+if strcmp(solver,'Cholesky')
+    plot(N3,10^-5*N3.^(5/3));
+    legend('t','N^{5/3}')
+elseif strcmp(solver, 'SSOR')
+    plot(N3,10^-5*N3.*M3);
+    legend('t','N*N_{iter}')
+elseif strcmp(solver,'PCG')
+    plot(N3,10^-5*N3.^(5/3).*M3);
+    legend('t','N^{5/3}*N_{iter}')
+end
+
+hold off;
+
+%% Plot relative residuals SSOR
+if strcmp(solver,'SSOR') || strcmp(solver,'PCG')
+    figure;
+    plot(resid2');
+    set(gca, 'YScale', 'log')
+    title(['Relative residual ||r||_2/||f||_2', solver,' 2D'])
+    for i=1:length(n2)
+        legendn{i} = sprintf('n=%s',num2str(n2(i)));
+    end
+    legend(legendn,'Location','best')
+    xlabel('m')
+    ylabel('||r||_2/||f||_2')
+    %%
+    %
+    figure;
+    plot(resid3');
+    set(gca, 'YScale', 'log')
+    title(['Relative residual ||r||_2/||f||_2 ' ,solver,' 3D'])
+    for i=1:length(n3)
+        legendn{i} = sprintf('n=%s',num2str(n3(i)));
+    end
+    legend(legendn,'Location','best')
+    xlabel('m')
+    ylabel('||r||_2/||f||_2')
+end
+
+%latex_table = latex(vpa(sym(rrf2),3))
+
+##### SOURCE END #####
+--></body></html>
