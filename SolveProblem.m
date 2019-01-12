@@ -144,7 +144,7 @@ end
  % Use given solver 
  if strcmp(solver,'Cholesky')
     tic; 
-    C = chol(A,'lower'); 
+    R = chol(A,'lower'); 
 %     for k = 1:size(A,2)
 %         j = max(k-(n+1),1);
 %         A(k,k) = sqrt(A(k,k) - A(k,j:k-1)*A(k,j:k-1)');
@@ -153,7 +153,7 @@ end
 %            A(i,k) = 1/(A(k,k))*(A(i,k) - A(i, l:k-1)*A(k,l:k-1)');
 %         end
 %     end 
-    R = tril(A);
+    %R = tril(A);
     %normest(R-C)
     tF = toc; 
     
