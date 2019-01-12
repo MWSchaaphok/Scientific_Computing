@@ -5,7 +5,7 @@ close all;
 %SolveProblem(p,dimension,iter,solver,reduction scheme,m_max)
 solver = 'Cholesky';                      % Options: 'Cholesky','SSOR','PCG'
 m_max = 100;
-p2 = 2:1:9;                         %
+p2 = 2:1:7;                         %
 n2 = 2.^p2;                         %
 N2 = (n2+ones(size(n2))).^2;        %
 h2 = 1./n2;                         %
@@ -120,7 +120,7 @@ if strcmp(solver,'Cholesky')
     set(gca, 'YScale','log')
     hold on
     plot(N2,10^-1*N2.^(1/2));
-    legend('Fill Ratio', 'N^{1/2}', 'location', 'best')
+    legend('Fill Ratio', '\sqrt(N2)', 'location', 'best')
     
     hold off
 
@@ -132,10 +132,8 @@ if strcmp(solver,'Cholesky')
     set(gca, 'XScale','log')
     set(gca, 'YScale','log')
     hold on
-    plot(N3,10^-2*N3);
-    hold on
-    plot(N3,10^-1*N3.^(1/2));
-    legend('Fill Ratio','N','N^{1/2}', 'location', 'best')
+    plot(N3,10N3);
+    legend('fill ratio','N')
     hold off
 
 
