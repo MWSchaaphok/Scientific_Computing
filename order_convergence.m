@@ -3,11 +3,7 @@ clear;
 close all;
 %%
 %SolveProblem(p,dimension,iter,solver,reduction scheme,m_max)
-<<<<<<< HEAD
 
-%%
-=======
->>>>>>> b6be8bd549c07554f7128c1fa4ebab08feac504d
 solver = 'Cholesky';                      % Options: 'Cholesky','SSOR','PCG'
 m_max = 100;
 p2 = 2:1:9;                         %
@@ -41,7 +37,7 @@ rrf3 = ones(size(p3,1),5);          % residual reduction factor
 for p= p3
     p
     [u3, u_ex3, err3D(p-1),tF3(p-1),tS3(p-1),fill_ratio3(p-1), resid3(p-1,:),rrf3(p-1,:),M3(p-1)] = SolveProblem(p,3,3,solver,0,m_max);
-end 
+end
 
 
 %%
@@ -126,7 +122,7 @@ if strcmp(solver,'Cholesky')
     hold on
     plot(N2,10^-1*N2.^(1/2));
     legend('Fill Ratio', 'N^{1/2}', 'location', 'best')
-    
+
     hold off
 
     figure;
@@ -146,12 +142,8 @@ if strcmp(solver,'Cholesky')
 
 end
 %%
-<<<<<<< HEAD
 figure;
 plot(N2,tS2);
-=======
-figure; 
->>>>>>> b6be8bd549c07554f7128c1fa4ebab08feac504d
 title(['Solving time ',solver,' 2D'])
 xlabel('N')
 ylabel('time (s)')
