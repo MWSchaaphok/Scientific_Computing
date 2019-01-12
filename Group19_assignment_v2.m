@@ -106,16 +106,6 @@ else
     fprintf('Please choose dimension 2 or 3')
 end
     %% Solve the system
-<<<<<<< HEAD
-    tic 
-    R = chol(A); 
-    t = toc; 
-    % Firect solving algorithm for norm(r)<tolerance 
-=======
-    R = chol(A);
-
-    % Firect solving algorithm for norm(r)<tolerance
->>>>>>> 66225ea345d3e50672f859a8e174860e6150411a
     r = f;
     u = zeros(size(f));
     i = 0;

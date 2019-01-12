@@ -4,9 +4,9 @@ close all;
 %%
 %SolveProblem(p,dimension,iter,solver,reduction scheme,m_max)
 %%
-solver = 'PCG';                      % Options: 'Cholesky','SSOR','PCG'
+solver = 'Cholesky';                      % Options: 'Cholesky','SSOR','PCG'
 m_max = 100;
-p2 = 2:1:4;                         %
+p2 = 2:1:7;                         %
 n2 = 2.^p2;                         %
 N2 = (n2+ones(size(n2))).^2;        %
 h2 = 1./n2;                         %
@@ -23,7 +23,7 @@ for p = p2
 end
 
 
-p3 = 2:1:4;                         %
+p3 = 2:1:5;                         %
 n3 = 2.^p3;                         %
 N3 = (n3 + ones(size(n3))).^3;
 h3 = 1./n3;
@@ -118,7 +118,6 @@ if strcmp(solver,'Cholesky')
     xlabel('N')
     ylabel('nnz(C)/nnz(A)')
     set(gca, 'XScale','log')
-    set(gca, 'YScale', 'log')
 
     figure;
     plot(N3,fill_ratio3)
@@ -126,12 +125,11 @@ if strcmp(solver,'Cholesky')
     xlabel('N')
     ylabel('nnz(C)/nnz(A)')
     set(gca, 'XScale','log')
-    set(gca, 'YScale', 'log')
 
 end
 %%
 figure;
-plot(N2,tS2(1:3));
+plot(N2,tS2);
 title(['Solving time ',solver,' 2D'])
 xlabel('N')
 ylabel('time (s)')
