@@ -3,17 +3,11 @@ clear;
 close all;
 %%
 %SolveProblem(p,dimension,iter,solver,reduction scheme,m_max)
-<<<<<<< HEAD
-%% 
-solver = 'PCG';                      % Options: 'Cholesky','SSOR','PCG'
-m_max = 100; 
-p2 = 2:1:6;                         %
-=======
+
 %%
 solver = 'Cholesky';                      % Options: 'Cholesky','SSOR','PCG'
 m_max = 100;
-p2 = 2:1:7;                         %
->>>>>>> dc42534416559bc950d5de516a0b882aaa35ee52
+p2 = 2:1:9;                         %
 n2 = 2.^p2;                         %
 N2 = (n2+ones(size(n2))).^2;        %
 h2 = 1./n2;                         %
@@ -135,11 +129,7 @@ if strcmp(solver,'Cholesky')
 
 end
 %%
-<<<<<<< HEAD
-figure; 
-=======
 figure;
->>>>>>> dc42534416559bc950d5de516a0b882aaa35ee52
 plot(N2,tS2);
 title(['Solving time ',solver,' 2D'])
 xlabel('N')
