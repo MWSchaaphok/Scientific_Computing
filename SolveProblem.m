@@ -3,12 +3,11 @@
 % By: Nerine Usman & Marianne Schaaphok
 % Date: 25-11-2018
 
-function [u,u_ex,err,tF,tS, fill_ratio, resid,rrf] = SolveProblem(p,dimension,iter, solver,redsc)
+function [u,u_ex,err,tF,tS, fill_ratio, resid,rrf] = SolveProblem(p,dimension,iter, solver,redsc,m_max)
 %% Parameters
 
 %dimension = 3; 
 tol = 1e-4;
-m_max = 10;                % maximum number of iterations for SSOR
 maxnorm = size(1,9);
 %p = 2; 
 n = 2^p; 
@@ -20,7 +19,9 @@ h = 1/n;
 H_1 = spdiags([h^2; zeros(n-1,1); h^2],0,n+1,n+1);
 D_1 = spdiags([0; ones(n-1,1);0], 0, n+1,n+1);
 D_2 = kron(D_1,D_1);
-D_3 = kron(D_1,D_2);
+if dimension == 3
+    D_3 = kron(D_1,D_2);
+end 
 T_1 = spdiags(-1*[0;ones(n-2,1); 0; 0],-1,n+1,n+1) ...
     + spdiags(-1*[0;0;ones(n-2,1);0],1,n+1,n+1);
 I_1 = spdiags(ones((n+1),1),0,(n+1),(n+1));
@@ -28,11 +29,14 @@ I_2 = spdiags(ones((n+1)^2,1),0,(n+1)^2,(n+1)^2);
 
 
 % Boundary neighbours of interior points
-B_1 = zeros(n+1); 
+B_1 = sparse(zeros(n+1)); 
 B_1(2,1) = 1; 
 B_1(n,n+1) = 1; 
 B_2 = kron(D_1,B_1) + kron(B_1,D_1);
-B_3 = kron(D_1,B_2) + kron(B_1,D_2);
+
+if dimension == 3 
+    B_3 = kron(D_1,B_2) + kron(B_1,D_2);
+end 
 
 % 1D matrix A 
 A_1 = H_1+2*D_1 + T_1;
@@ -41,13 +45,15 @@ A_1 = H_1+2*D_1 + T_1;
 A_2 = kron(H_1,I_1) + kron(D_1,A_1+2*D_1) + kron(T_1,D_1);
 
 % 3D matrix A
-
-A_3 = kron(H_1,I_2) + kron(D_1,A_2+2*kron(D_1,D_1)) + kron(T_1,D_2);
+if dimension == 3
+    A_3 = kron(H_1,I_2) + kron(D_1,A_2+2*kron(D_1,D_1)) + kron(T_1,D_2);
+end 
 
 A_1 = 1/h^2 * A_1;
 A_2 = 1/h^2 * A_2; 
-A_3 = 1/h^2 * A_3; 
-
+if dimension == 3
+    A_3 = 1/h^2 * A_3; 
+end 
 %imagesc(A_2)
 
 %% Construct vector f 2D
@@ -123,7 +129,8 @@ if redsc == 1
 end 
  
  % Define variables 
- R = zeros(size(A));
+ R = sparse(size(A));
+ %R = zeros(size(A));
  u = zeros(size(u_ex)); 
  resid = zeros(m_max,1); 
  normR = zeros(m_max,1);
@@ -131,38 +138,52 @@ end
  tF = 0; 
  tS = 0; 
  r = 1;
+ nf = norm(f);
+ m=1;
  
  % Use given solver 
  if strcmp(solver,'Cholesky')
     tic; 
-    R = chol(A,'lower'); 
+    C = chol(A,'lower'); 
+%     for k = 1:size(A,2)
+%         j = max(k-(n+1),1);
+%         A(k,k) = sqrt(A(k,k) - A(k,j:k-1)*A(k,j:k-1)');
+%         for i = k+1:min(k+n+1,size(A,2))
+%             l = max(i-(n+1),1);
+%            A(i,k) = 1/(A(k,k))*(A(i,k) - A(i, l:k-1)*A(k,l:k-1)');
+%         end
+%     end 
+    R = tril(A);
+    %normest(R-C)
     tF = toc; 
+    
+    
     % Direct solving algorithm for norm(r)<tolerance 
     tic; 
-    r = f;
-    u = zeros(size(f)); 
-    i = 0;
+    %r = f;
+    %u = zeros(size(f)); 
+    %i = 0;
     %while norm(r)>tol
-    while i<iter
-        y = R\r; 
-        du = R'\y; 
-        u = u+du; 
-        r = f-A*u; 
-        i = i+1; 
-        if i>1000
-           fprintf('Could not converge within 1000 iteration\n') 
-           break
-        end
-    end
-
+    %while i<iter
+    y = R\f; 
+    u = R'\y;
     tS = toc; 
+    %u = u+du; 
+    %r = f-A*u; 
+    %    i = i+1; 
+    %   if i>1000
+    %       fprintf('Could not converge within 1000 iteration\n') 
+    %       break
+    %    end
+    %end
+
+    
 
 elseif strcmp(solver,'SSOR')
      omega = 1.5; 
-     m=1;
-     nf = norm(f);
+
      tic;
-     while m<m_max % && norm(r)/nf>10^-10
+     while m<m_max && norm(r)/nf>10^-10
          for i = 1:length(u)
             sigma = u(i); 
             %u(i) = (f(i) - A(i,1:i-1)*u(1:i-1) - A(i,i+1)*u(i+1,n))/A(i,i);
@@ -177,13 +198,52 @@ elseif strcmp(solver,'SSOR')
             u(i) = (f(i)-A(i,:)*u)/A(i,i);
             u(i) = (1-omega)*sigma + omega*u(i);
          end
-         %r = f-A*u;
-         %resid(m) = norm(r)/nf;
-         %normR(m) = norm(r); 
+         r = f-A*u;
+         resid(m) = norm(r)/nf;
+         normR(m) = norm(r); 
          m=m+1; 
      end 
      tS = toc; 
-     %rrf = normR(m-5:m-1)./norm(m-6:m-2);
+     rrf = normR(m-5:m-1)./norm(m-6:m-2);
+     
+  
+ elseif strcmp(solver,'PCG')
+     omega = 1.5; 
+     
+     % Decompose A 
+     D = diag(diag(A));
+     E = D - tril(A); 
+     F = E';
+     
+     % Preconditioning matrix
+     M = (D-omega*E)*spdiags(1./diag(D),0,size(D,1),size(D,2))*(D-omega*F)/(omega*(2-omega));
+     
+     % Algorithm
+     %tic; 
+     r = f; 
+     
+     while m<=m_max && norm(r)/nf>10^-10
+        tic; 
+        z = M\r;
+        if  m==1
+            p = z;  
+            current = r'*z;
+        else
+            current = r'*z;
+            beta = current/prev;
+            p = z + beta*p;
+        end
+        temp = A*p; 
+        alpha = current/(p'*temp);
+        u = u + alpha*p;
+        r = r - alpha*temp;
+        prev = current;
+        
+        resid(m) = norm(r)/nf;
+        m = m+1;
+        tS = toc;        
+     end 
+     %tS = toc; 
      
  end 
 
