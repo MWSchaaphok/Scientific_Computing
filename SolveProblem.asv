@@ -3,7 +3,7 @@
 % By: Nerine Usman & Marianne Schaaphok
 % Date: 25-11-2018
 
-function [u,u_ex,err,tF,tS, fill_ratio, resid,rrf,m] = SolveProblem(p,dimension,iter, solver,redsc,m_max)
+function [u,u_ex,err,tF,tS, fill_ratio, resid,rrf] = SolveProblem(p,dimension,iter, solver,redsc,m_max)
 %% Parameters
 
 %dimension = 3; 
@@ -181,7 +181,7 @@ end
 
 elseif strcmp(solver,'SSOR')
      omega = 1.5; 
-     resid(1) = 1; 
+
      tic;
      while m<m_max && norm(r)/nf>10^-10
          for i = 1:length(u)
@@ -199,13 +199,12 @@ elseif strcmp(solver,'SSOR')
             u(i) = (1-omega)*sigma + omega*u(i);
          end
          r = f-A*u;
+         resid(m) = norm(r)/nf;
          normR(m) = norm(r); 
-         resid(m) = normR(m)/nf;
          m=m+1; 
      end 
-     
      tS = toc; 
-     rrf = normR(max(m-5,1):m-1)./normR(max(m-6,1):m-2);
+     %rrf = normR(m-5:m-1)./norm(m-6:m-2);
      
   
  elseif strcmp(solver,'PCG')
