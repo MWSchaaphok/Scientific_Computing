@@ -4,7 +4,7 @@ close all;
 
 %% 
 
-p2 = 2:1:3;    
+p2 = 2:1:2;    
 n2 = 2.^p2;                         %
 N2 = (n2+ones(size(n2))).^2;
 h2 = 1./n2;     
@@ -32,7 +32,7 @@ resid3 = ones(size(p3,1),10);        % residual SSOR
 rrf3 = ones(size(p3,1),5);          % residual reduction factor 
 
 for p= p3
-    [u3, u_ex3, err3D(p-1),tF3(p-1),tS3(p-1),fill_ratio3(p-1), resid3(p-1,:),rrf3(p-1,:)] = SolveProblem(p,3,3,'SSOR',0);
+    [u3, u_ex3, err3D(p-1),tF3(p-1),tS3(p-1),fill_ratio3(p-1), resid3(p-1,:),rrf3(p-1,:)] = SolveProblem(p,3,3,'Cholesky',0);
 end 
  
 
