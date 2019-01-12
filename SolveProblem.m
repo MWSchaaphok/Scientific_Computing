@@ -119,19 +119,19 @@ end
 % Use of bandwith reduction scheme
 if redsc == 1 
      s = symamd(A);
-     figure;
-     spy(A); 
-     title('A before matrix reordering')
+%      figure;
+%      spy(A); 
+%      title('A before matrix reordering')
      A = A(s,s); 
-     figure
-     spy(A)
-     title('A after matrix reordering')
+%      figure
+%      spy(A)
+%      title('A after matrix reordering')
+     f = f(s);
 end 
  
  % Define variables 
  R = sparse(size(A));
  %R = zeros(size(A));
- u = zeros(size(u_ex)); 
  resid = zeros(m_max,1); 
  normR = zeros(m_max,1);
  rrf = zeros(5,1); 
@@ -153,7 +153,7 @@ end
 %            A(i,k) = 1/(A(k,k))*(A(i,k) - A(i, l:k-1)*A(k,l:k-1)');
 %         end
 %     end 
-    %R = tril(A);
+%     R = tril(A);
     %normest(R-C)
     tF = toc; 
     
@@ -168,6 +168,7 @@ end
     y = R\f; 
     u = R'\y;
     tS = toc; 
+    u(s) = u; 
     %u = u+du; 
     %r = f-A*u; 
     %    i = i+1; 
@@ -254,16 +255,16 @@ elseif strcmp(solver,'SSOR')
  fill_ratio = nnz(R)/nnz(A);
  err = norm(u-u_ex, 'inf');
 
-% if dimension==2
-%     u_pl = reshape(u,[(n+1),(n+1)]);
-%     u_ex1 = reshape(U2,[n+1,n+1]);
-% 
-%     figure; 
-%     surf(X,Y,u_pl)
-%     hold on;
-%     surf(X,Y,u_ex1)
-%     hold off; 
-% end 
+if dimension==2
+    u_pl = reshape(u,[(n+1),(n+1)]);
+    u_ex1 = reshape(U2,[n+1,n+1]);
+
+    figure; 
+    surf(X,Y,u_pl)
+    hold on;
+    surf(X,Y,u_ex1)
+    hold off; 
+end 
 
 
 %% Functions

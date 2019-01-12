@@ -3,10 +3,10 @@ clear;
 close all;
 %%
 %SolveProblem(p,dimension,iter,solver,reduction scheme,m_max)
-
-solver = 'Cholesky';                      % Options: 'Cholesky','SSOR','PCG'
+%%
+solver = 'PCG';                      % Options: 'Cholesky','SSOR','PCG'
 m_max = 100;
-p2 = 2:1:9;                         %
+p2 = 2:1:6;                         %
 n2 = 2.^p2;                         %
 N2 = (n2+ones(size(n2))).^2;        %
 h2 = 1./n2;                         %
@@ -114,16 +114,10 @@ if strcmp(solver,'Cholesky')
     %% Fill ratio analysis
     figure;
     plot(N2,fill_ratio2)
-    title('Fill Ratio 2D')
+    title('Fill ratio 2D')
     xlabel('N')
     ylabel('nnz(C)/nnz(A)')
     set(gca, 'XScale','log')
-    set(gca, 'YScale','log')
-    hold on
-    plot(N2,10^-1*N2.^(1/2));
-    legend('Fill Ratio', 'N^{1/2}', 'location', 'best')
-
-    hold off
 
     figure;
     plot(N3,fill_ratio3)
@@ -131,14 +125,6 @@ if strcmp(solver,'Cholesky')
     xlabel('N')
     ylabel('nnz(C)/nnz(A)')
     set(gca, 'XScale','log')
-    set(gca, 'YScale','log')
-    hold on
-    plot(N3,10^-2*N3);
-    hold on
-    plot(N3,10^-1*N3.^(1/2));
-    legend('Fill Ratio','N','N^{1/2}', 'location', 'best')
-    hold off
-
 
 end
 %%
