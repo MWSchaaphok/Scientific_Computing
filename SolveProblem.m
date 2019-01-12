@@ -220,11 +220,10 @@ elseif strcmp(solver,'SSOR')
      M = (D-omega*E)*spdiags(1./diag(D),0,size(D,1),size(D,2))*(D-omega*F)/(omega*(2-omega));
      
      % Algorithm
-     %tic; 
+     tic; 
      r = f; 
      
      while m<=m_max && norm(r)/nf>10^-10
-        tic; 
         z = M\r;
         if  m==1
             p = z;  
@@ -242,9 +241,9 @@ elseif strcmp(solver,'SSOR')
         
         resid(m) = norm(r)/nf;
         m = m+1;
-        tS = toc;        
+        %tS = toc;        
      end 
-     %tS = toc; 
+     tS = toc; 
      
  end 
 

@@ -6,7 +6,7 @@ close all;
 %% 
 solver = 'PCG';                      % Options: 'Cholesky','SSOR','PCG'
 m_max = 100; 
-p2 = 2:1:4;                         %
+p2 = 2:1:6;                         %
 n2 = 2.^p2;                         %
 N2 = (n2+ones(size(n2))).^2;        %
 h2 = 1./n2;                         %
@@ -131,7 +131,7 @@ if strcmp(solver,'Cholesky')
 end
 %%
 figure; 
-plot(N2,tS2(1:3));
+plot(N2,tS2);
 title(['Solving time ',solver,' 2D'])
 xlabel('N')
 ylabel('time (s)')
