@@ -4,9 +4,9 @@ close all;
 %%
 %SolveProblem(p,dimension,iter,solver,reduction scheme,m_max)
 %%
-solver = 'PCG';                      % Options: 'Cholesky','SSOR','PCG'
+solver = 'SSOR';                      % Options: 'Cholesky','SSOR','PCG'
 m_max = 100;
-p2 = 2:1:6;                         %
+p2 = 2:1:4;                         %
 n2 = 2.^p2;                         %
 N2 = (n2+ones(size(n2))).^2;        %
 h2 = 1./n2;                         %
@@ -23,7 +23,7 @@ for p = p2
 end
 
 
-p3 = 2:1:5;                         %
+p3 = 2:1:4;                         %
 n3 = 2.^p3;                         %
 N3 = (n3 + ones(size(n3))).^3;
 h3 = 1./n3;
