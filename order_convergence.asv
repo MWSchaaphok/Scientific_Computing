@@ -4,9 +4,9 @@ close all;
 %%
 %SolveProblem(p,dimension,iter,solver,reduction scheme,m_max)
 %%
-solver = 'Cholesky';                      % Options: 'Cholesky','SSOR','PCG'
-m_max = 200;
-p2 = 2:1:9;                         %
+solver = 'SSOR';                      % Options: 'Cholesky','SSOR','PCG'
+m_max = 7;
+p2 = 2:1:5;                         %
 n2 = 2.^p2;                         %
 N2 = (n2+ones(size(n2))).^2;        %
 h2 = 1./n2;                         %
@@ -23,7 +23,7 @@ for p = p2
 end
 
 
-p3 = 2:1:6;                         %
+p3 = 2:1:5;                         %
 n3 = 2.^p3;                         %
 N3 = (n3 + ones(size(n3))).^3;
 h3 = 1./n3;
@@ -76,8 +76,8 @@ if strcmp(solver,'Cholesky')
     set(gca, 'XScale','log')
     set(gca, 'YScale', 'log')
     hold on;
-    plot(N2, 10^-5*N2.^(7/3));
-    legend('t','N^{7/3}')
+    plot(N2, 10^-5*N2.^2);
+    legend('t','N^2')
     hold off;
 
     figure;
@@ -141,7 +141,7 @@ if strcmp(solver,'Cholesky')
     plot(N2,10^-5*N2.^(3/2));
     legend('t','N^{3/2}')
 elseif strcmp(solver, 'SSOR')
-    plot(N2,10^-5*N2.*M2)
+    plot(N2,10^-5*N2.*1)
     legend('t','N*N_{iter}')
 elseif strcmp(solver,'PCG')
     plot(N2,10^-5*N2.^(3/2).*M2);
@@ -184,6 +184,8 @@ if strcmp(solver,'SSOR') || strcmp(solver,'PCG')
     legend(legendn,'Location','best')
     xlabel('m')
     ylabel('||r||_2/||f||_2')
+    hold on; 
+    plot(M2,1-M2.^(0.5));
     %%
     %
     figure;

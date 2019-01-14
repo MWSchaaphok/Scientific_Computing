@@ -132,6 +132,7 @@ end
  % Define variables 
  R = sparse(size(A));
  %R = zeros(size(A));
+ u = zeros(size(f));
  resid = zeros(m_max,1); 
  normR = zeros(m_max,1);
  rrf = zeros(5,1); 
@@ -145,6 +146,9 @@ end
  if strcmp(solver,'Cholesky')
     tic; 
     R = chol(A,'lower'); 
+    tF = toc;
+
+%     Cholesky Decomposition
 %     for k = 1:size(A,2)
 %         j = max(k-(n+1),1);
 %         A(k,k) = sqrt(A(k,k) - A(k,j:k-1)*A(k,j:k-1)');
@@ -154,37 +158,25 @@ end
 %         end
 %     end 
 %     R = tril(A);
-    %normest(R-C)
-    tF = toc; 
+     
     
     
-    % Direct solving algorithm for norm(r)<tolerance 
+    % Direct solving algorithm
     tic; 
-    %r = f;
-    %u = zeros(size(f)); 
-    %i = 0;
-    %while norm(r)>tol
-    %while i<iter
     y = R\f; 
     u = R'\y;
     tS = toc; 
-    u(s) = u; 
-    %u = u+du; 
-    %r = f-A*u; 
-    %    i = i+1; 
-    %   if i>1000
-    %       fprintf('Could not converge within 1000 iteration\n') 
-    %       break
-    %    end
-    %end
-
     
+    if redsc == 1 
+    u(s) = u; 
+    end 
 
 elseif strcmp(solver,'SSOR')
      omega = 1.5; 
      resid(1) = 1; 
      tic;
      while m<m_max && norm(r)/nf>10^-10
+         %tic;
          for i = 1:length(u)
             sigma = u(i); 
             %u(i) = (f(i) - A(i,1:i-1)*u(1:i-1) - A(i,i+1)*u(i+1,n))/A(i,i);
@@ -199,10 +191,12 @@ elseif strcmp(solver,'SSOR')
             u(i) = (f(i)-A(i,:)*u)/A(i,i);
             u(i) = (1-omega)*sigma + omega*u(i);
          end
+         %tS = toc;
          r = f-A*u;
          normR(m) = norm(r); 
          resid(m) = normR(m)/nf;
          m=m+1; 
+         
      end 
      
      tS = toc; 
