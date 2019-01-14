@@ -160,7 +160,6 @@ end
 %     R = tril(A);
      
     
-    
     % Direct solving algorithm
     tic; 
     y = R\f; 

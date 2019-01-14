@@ -4,9 +4,9 @@ close all;
 %%
 %SolveProblem(p,dimension,iter,solver,reduction scheme,m_max)
 %%
-solver = 'Cholesky';                      % Options: 'Cholesky','SSOR','PCG'
+solver = 'SSOR';                      % Options: 'Cholesky','SSOR','PCG'
 m_max = 200;
-p2 = 2:1:9;                         %
+p2 = 2:1:6;                         %
 n2 = 2.^p2;                         %
 N2 = (n2+ones(size(n2))).^2;        %
 h2 = 1./n2;                         %
@@ -19,11 +19,11 @@ rrf2 = ones(size(p2,1),5);          % residual reduction factor
 
 for p = p2
     p
-    [u2, u_ex2, err2D(p-1),tF2(p-1),tS2(p-1), fill_ratio2(p-1),resid2(p-1,:),rrf2(p-1,:),M2(p-1)] = SolveProblem(p,2,3,solver,1,m_max);
+    [u2, u_ex2, err2D(p-1),tF2(p-1),tS2(p-1), fill_ratio2(p-1),resid2(p-1,:),rrf2(p-1,:),M2(p-1)] = SolveProblem(p,2,3,solver,0,m_max);
 end
 
 
-p3 = 2:1:6;                         %
+p3 = 2:1:4;                         %
 n3 = 2.^p3;                         %
 N3 = (n3 + ones(size(n3))).^3;
 h3 = 1./n3;
@@ -36,7 +36,7 @@ rrf3 = ones(size(p3,1),5);          % residual reduction factor
 
 for p= p3
     p
-    [u3, u_ex3, err3D(p-1),tF3(p-1),tS3(p-1),fill_ratio3(p-1), resid3(p-1,:),rrf3(p-1,:),M3(p-1)] = SolveProblem(p,3,3,solver,1,m_max);
+    [u3, u_ex3, err3D(p-1),tF3(p-1),tS3(p-1),fill_ratio3(p-1), resid3(p-1,:),rrf3(p-1,:),M3(p-1)] = SolveProblem(p,3,3,solver,0,m_max);
 end
 
 
@@ -76,8 +76,8 @@ if strcmp(solver,'Cholesky')
     set(gca, 'XScale','log')
     set(gca, 'YScale', 'log')
     hold on;
-    plot(N2, 10^-5*N2.^(7/3));
-    legend('t','N^{7/3}')
+    plot(N2, 10^-5*N2.^(2));
+    legend('t','N^{2}')
     hold off;
 
     figure;
@@ -87,7 +87,11 @@ if strcmp(solver,'Cholesky')
     ylabel('Time (s)')
     set(gca, 'XScale','log')
     set(gca, 'YScale', 'log')
-
+    hold on;
+    plot(N2, 10^-5*N2.^(7/3));
+    legend('t','N^{7/3}')
+    hold off; 
+    
     figure;
     plot(N2,tS2)
     title('Forward/Backward Solving Time 2D')
@@ -141,8 +145,10 @@ if strcmp(solver,'Cholesky')
     plot(N2,10^-5*N2.^(3/2));
     legend('t','N^{3/2}')
 elseif strcmp(solver, 'SSOR')
-    plot(N2,10^-5*N2.*M2)
+    plot(N2,10^-5*N2*M2)
+    %plot(N2,10^-5*N2.^2)
     legend('t','N*N_{iter}')
+    %legend('t','N','N^2')
 elseif strcmp(solver,'PCG')
     plot(N2,10^-5*N2.^(3/2).*M2);
     legend('t','N^{3/2}*N_{iter}')
@@ -163,8 +169,10 @@ if strcmp(solver,'Cholesky')
     plot(N3,10^-5*N3.^(5/3));
     legend('t','N^{5/3}')
 elseif strcmp(solver, 'SSOR')
-    plot(N3,10^-5*N3.*M3);
+    plot(N3,10^-5*N3*M3);
+    %plot(N3,10^-5*N3.^2);
     legend('t','N*N_{iter}')
+    %legend('t','N','N^2')
 elseif strcmp(solver,'PCG')
     plot(N3,10^-5*N3.^(5/3).*M3);
     legend('t','N^{5/3}*N_{iter}')
