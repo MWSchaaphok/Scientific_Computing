@@ -174,6 +174,7 @@ end
 elseif strcmp(solver,'SSOR')
      omega = 1.5; 
      resid(1) = 1; 
+     u = zeros(size(u_ex));
      tic;
      while m<m_max && norm(r)/nf>10^-10
          %tic;
@@ -205,6 +206,8 @@ elseif strcmp(solver,'SSOR')
   
  elseif strcmp(solver,'PCG')
      omega = 1.5; 
+     % Initialize
+     u = zeros(size(u_ex));
      
      % Decompose A 
      D = diag(diag(A));
@@ -249,16 +252,16 @@ elseif strcmp(solver,'SSOR')
  fill_ratio = nnz(R)/nnz(A);
  err = norm(u-u_ex, 'inf');
 
-if dimension==2
-    u_pl = reshape(u,[(n+1),(n+1)]);
-    u_ex1 = reshape(U2,[n+1,n+1]);
-
-    figure; 
-    surf(X,Y,u_pl)
-    hold on;
-    surf(X,Y,u_ex1)
-    hold off; 
-end 
+% if dimension==2
+%     u_pl = reshape(u,[(n+1),(n+1)]);
+%     u_ex1 = reshape(U2,[n+1,n+1]);
+% 
+%     figure; 
+%     surf(X,Y,u_pl)
+%     hold on;
+%     surf(X,Y,u_ex1)
+%     hold off; 
+% end 
 
 
 %% Functions
