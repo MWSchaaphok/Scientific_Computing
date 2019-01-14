@@ -19,7 +19,7 @@ rrf2 = ones(size(p2,1),5);          % residual reduction factor
 
 for p = p2
     p
-    [u2, u_ex2, err2D(p-1),tF2(p-1),tS2(p-1), fill_ratio2(p-1),resid2(p-1,:),rrf2(p-1,:),M2(p-1)] = SolveProblem(p,2,3,solver,0,m_max);
+    [u2, u_ex2, err2D(p-1),tF2(p-1),tS2(p-1), fill_ratio2(p-1),resid2(p-1,:),rrf2(p-1,:),M2(p-1)] = SolveProblem(p,2,3,solver,1,m_max);
 end
 
 
@@ -36,7 +36,7 @@ rrf3 = ones(size(p3,1),5);          % residual reduction factor
 
 for p= p3
     p
-    [u3, u_ex3, err3D(p-1),tF3(p-1),tS3(p-1),fill_ratio3(p-1), resid3(p-1,:),rrf3(p-1,:),M3(p-1)] = SolveProblem(p,3,3,solver,0,m_max);
+    [u3, u_ex3, err3D(p-1),tF3(p-1),tS3(p-1),fill_ratio3(p-1), resid3(p-1,:),rrf3(p-1,:),M3(p-1)] = SolveProblem(p,3,3,solver,1,m_max);
 end
 
 
